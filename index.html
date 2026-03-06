@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #taskInput {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fafafa;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+        }
+        li.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .remove {
+            background: #ff4d4d;
+            border: none;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <input type="text" id="taskInput" placeholder="Add a new task" />
+        <ul id="taskList"></ul>
+    </div>
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const taskList = document.getElementById('taskList');
+
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll('#taskList li').forEach(li => {
+                tasks.push({
+                    text: li.querySelector('span').textContent,
+                    completed: li.classList.contains('completed')
+                });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const stored = JSON.parse(localStorage.getItem('tasks') || '[]');
+            stored.forEach(item => addTask(item.text, item.completed));
+        }
+
+        function addTask(text, completed = false) {
+            const li = document.createElement('li');
+            if (completed) li.classList.add('completed');
+            const span = document.createElement('span');
+            span.textContent = text;
+            span.addEventListener('click', () => {
+                li.classList.toggle('completed');
+                saveTasks();
+            });
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'X';
+            removeBtn.className = 'remove';
+            removeBtn.addEventListener('click', () => {
+                taskList.removeChild(li);
+                saveTasks();
+            });
+            li.appendChild(span);
+            li.appendChild(removeBtn);
+            taskList.appendChild(li);
+        }
+
+        taskInput.addEventListener('keyup', event => {
+            if (event.key === 'Enter' && taskInput.value.trim() !== '') {
+                addTask(taskInput.value.trim());
+                taskInput.value = '';
+                saveTasks();
+            }
+        });
+
+        // load tasks on startup
+        loadTasks();
+    </script>
+</body>
+</html>
